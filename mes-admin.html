@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mehfil-e-Sahib | Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --black: #0B0B0B;
+  --bg: #111013;
+  --panel: #17151a;
+  --panel2: #1e1b23;
+  --gold: #D4AF37;
+  --gold-dim: rgba(212,175,55,0.12);
+  --gold-border: rgba(212,175,55,0.25);
+  --white: #F0EBE0;
+  --muted: rgba(240,235,224,0.45);
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --blue: #3498db;
+  --orange: #f39c12;
+  --sidebar-w: 240px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--white); font-family: 'Poppins', sans-serif; font-size: 14px; display: flex; min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: var(--sidebar-w); background: var(--panel); border-right: 1px solid var(--gold-border);
+  display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+  transition: transform 0.3s;
+}
+.sidebar-logo { padding: 28px 24px 20px; border-bottom: 1px solid var(--gold-border); }
+.sidebar-logo h1 { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--gold); line-height: 1.3; }
+.sidebar-logo p { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 4px; }
+.sidebar-badge { display: inline-block; background: var(--gold-dim); border: 1px solid var(--gold-border); color: var(--gold); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; margin-top: 8px; }
+nav.sidebar-nav { flex: 1; padding: 20px 0; overflow-y: auto; }
+.nav-section { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); padding: 12px 24px 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px; padding: 11px 24px;
+  color: var(--muted); cursor: pointer; transition: color 0.2s, background 0.2s;
+  font-size: 0.82rem; border-left: 2px solid transparent; text-decoration: none;
+}
+.nav-item:hover { color: var(--white); background: rgba(255,255,255,0.03); }
+.nav-item.active { color: var(--gold); background: var(--gold-dim); border-left-color: var(--gold); }
+.nav-item .icon { width: 18px; text-align: center; font-size: 1rem; }
+.nav-badge { margin-left: auto; background: var(--red); color: #fff; font-size: 0.6rem; padding: 1px 6px; border-radius: 10px; }
+.sidebar-footer { padding: 16px 24px; border-top: 1px solid var(--gold-border); }
+.sidebar-footer a { color: var(--muted); font-size: 0.75rem; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: color 0.2s; }
+.sidebar-footer a:hover { color: var(--gold); }
+
+/* ── MAIN ── */
+#main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ── TOPBAR ── */
+#topbar {
+  background: var(--panel); border-bottom: 1px solid var(--gold-border);
+  padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-title { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--white); }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.topbar-btn {
+  background: var(--gold-dim); border: 1px solid var(--gold-border); color: var(--gold);
+  padding: 7px 16px; border-radius: 20px; font-size: 0.72rem; letter-spacing: 0.1em;
+  text-transform: uppercase; cursor: pointer; font-family: 'Poppins', sans-serif;
+  text-decoration: none; transition: background 0.2s;
+}
+.topbar-btn:hover { background: var(--gold); color: var(--black); }
+.topbar-time { font-size: 0.72rem; color: var(--muted); }
+
+/* ── CONTENT ── */
+.page { display: none; padding: 32px; }
+.page.active { display: block; }
+
+/* ── STAT CARDS ── */
+.stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--panel); border: 1px solid var(--gold-border); border-radius: 8px;
+  padding: 24px 20px; position: relative; overflow: hidden;
+}
+.stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(90deg,transparent,var(--gold),transparent); }
+.stat-card .label { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.stat-card .value { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); font-weight: 700; }
+.stat-card .sub { font-size: 0.7rem; color: var(--muted); margin-top: 6px; }
+.stat-card .icon { position: absolute; right: 20px; top: 20px; font-size: 1.5rem; opacity: 0.3; }
+
+/* ── SECTION HEADER ── */
+.sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.sec-title { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--white); }
+.sec-actions { display: flex; gap: 10px; align-items: center; }
+
+/* ── TABLE ── */
+.table-wrap { background: var(--panel); border: 1px solid var(--gold-border); border-radius: 8px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead th { background: var(--panel2); padding: 12px 16px; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); text-align: left; font-weight: 500; border-bottom: 1px solid var(--gold-border); }
+tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
+tbody tr:hover { background: rgba(212,175,55,0.04); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 12px 16px; font-size: 0.82rem; color: var(--white); vertical-align: middle; }
+td.muted { color: var(--muted); font-size: 0.75rem; }
+
+/* ── BADGES ── */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; }
+.badge.new { background: rgba(46,204,113,0.15); color: var(--green); border: 1px solid rgba(46,204,113,0.3); }
+.badge.read { background: rgba(52,152,219,0.15); color: var(--blue); border: 1px solid rgba(52,152,219,0.3); }
+.badge.replied { background: rgba(243,156,18,0.15); color: var(--orange); border: 1px solid rgba(243,156,18,0.3); }
+.badge.closed { background: rgba(255,255,255,0.07); color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
+
+/* ── ACTION BTNS ── */
+.act-btn { background: none; border: 1px solid var(--gold-border); color: var(--muted); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-family:'Poppins',sans-serif; transition: all 0.2s; margin-right: 4px; }
+.act-btn:hover { border-color: var(--gold); color: var(--gold); }
+.act-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+/* ── SEARCH / FILTER ── */
+.filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.search-box {
+  background: var(--panel2); border: 1px solid var(--gold-border); border-radius: 6px;
+  padding: 8px 14px; color: var(--white); font-family: 'Poppins', sans-serif; font-size: 0.82rem;
+  outline: none; width: 240px; transition: border-color 0.2s;
+}
+.search-box:focus { border-color: var(--gold); }
+.filter-select {
+  background: var(--panel2); border: 1px solid var(--gold-border); border-radius: 6px;
+  padding: 8px 12px; color: var(--white); font-family: 'Poppins', sans-serif; font-size: 0.8rem;
+  outline: none; cursor: pointer; -webkit-appearance: none; appearance: none;
+}
+.filter-select option { background: #1e1b23; }
+
+/* ── MODAL ── */
+#modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; display: none; align-items: center; justify-content: center; padding: 20px; }
+#modal-overlay.open { display: flex; }
+.modal {
+  background: var(--panel); border: 1px solid var(--gold-border); border-radius: 10px;
+  width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+}
+.modal-header { padding: 24px 28px 16px; border-bottom: 1px solid var(--gold-border); display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1rem; }
+.modal-close { background: none; border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer; }
+.modal-body { padding: 24px 28px; }
+.detail-row { display: grid; grid-template-columns: 140px 1fr; gap: 8px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.detail-row:last-child { border-bottom: none; }
+.detail-label { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); padding-top: 2px; }
+.detail-value { font-size: 0.85rem; color: var(--white); line-height: 1.6; }
+.modal-footer { padding: 16px 28px; border-top: 1px solid var(--gold-border); display: flex; gap: 10px; justify-content: flex-end; }
+.btn-gold { background: linear-gradient(135deg,var(--gold),#b8960c); color: var(--black); border: none; padding: 9px 20px; border-radius: 20px; font-family:'Poppins',sans-serif; font-weight:600; font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:transform 0.2s; }
+.btn-gold:hover { transform: translateY(-1px); }
+.btn-outline { background: transparent; color: var(--muted); border: 1px solid var(--gold-border); padding: 9px 20px; border-radius: 20px; font-family:'Poppins',sans-serif; font-size:0.75rem; cursor:pointer; transition:color 0.2s,border-color 0.2s; }
+.btn-outline:hover { color:var(--gold); border-color:var(--gold); }
+
+/* ── GALLERY MANAGER ── */
+.gallery-manager { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 16px; }
+.gal-thumb {
+  position: relative; border-radius: 8px; overflow: hidden; border: 1px solid var(--gold-border);
+  aspect-ratio: 4/3; background: var(--panel2); cursor: default; group: true;
+}
+.gal-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: filter 0.3s; }
+.gal-thumb:hover img { filter: brightness(0.5); }
+.gal-overlay {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; opacity: 0; transition: opacity 0.3s;
+}
+.gal-thumb:hover .gal-overlay { opacity: 1; }
+.gal-overlay button {
+  background: rgba(0,0,0,0.7); border: 1px solid var(--gold); color: var(--gold);
+  padding: 6px 14px; border-radius: 4px; font-size: 0.7rem; cursor: pointer; font-family:'Poppins',sans-serif;
+  transition: background 0.2s;
+}
+.gal-overlay button:hover { background: var(--gold); color: var(--black); }
+.gal-overlay button.del { border-color: var(--red); color: var(--red); }
+.gal-overlay button.del:hover { background: var(--red); color: #fff; }
+.gal-num { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); color: var(--gold); font-size: 0.65rem; padding: 2px 7px; border-radius: 10px; font-family:'Cinzel',serif; }
+
+/* ── UPLOAD ZONE ── */
+.upload-zone {
+  border: 2px dashed var(--gold-border); border-radius: 10px; padding: 48px 24px;
+  text-align: center; cursor: pointer; transition: border-color 0.3s, background 0.3s;
+  background: var(--panel2); margin-bottom: 24px;
+}
+.upload-zone:hover, .upload-zone.drag { border-color: var(--gold); background: var(--gold-dim); }
+.upload-zone h3 { font-family:'Cinzel',serif; color: var(--gold); margin-bottom: 8px; font-size:1rem; }
+.upload-zone p { font-size: 0.78rem; color: var(--muted); }
+.upload-zone input[type="file"] { display: none; }
+.preview-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.preview-item { position: relative; width: 80px; height: 80px; border-radius: 6px; overflow: hidden; border: 1px solid var(--gold-border); }
+.preview-item img { width:100%; height:100%; object-fit:cover; }
+.preview-item .rm { position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.7); border:none; color:var(--red); cursor:pointer; width:18px; height:18px; border-radius:50%; font-size:0.6rem; display:flex; align-items:center; justify-content:center; }
+
+/* ── EMPTY STATE ── */
+.empty-state { padding: 60px; text-align: center; }
+.empty-state .icon { font-size: 3rem; opacity: 0.3; margin-bottom: 16px; }
+.empty-state p { color: var(--muted); font-size: 0.85rem; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 28px; right: 28px; background: var(--panel2); border: 1px solid var(--gold-border);
+  color: var(--white); padding: 14px 20px; border-radius: 8px; font-size: 0.82rem;
+  z-index: 9999; transform: translateY(80px); opacity: 0; transition: all 0.3s;
+  border-left: 3px solid var(--gold);
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── QUICK REPLY ── */
+.reply-box {
+  background: var(--panel2); border: 1px solid var(--gold-border); border-radius: 6px;
+  padding: 12px; color: var(--white); font-family:'Poppins',sans-serif; font-size:0.82rem;
+  width: 100%; resize: vertical; min-height: 80px; outline: none; margin-top:12px;
+}
+.reply-box:focus { border-color: var(--gold); }
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px) {
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #main { margin-left: 0; }
+  .stat-row { grid-template-columns: repeat(2,1fr); }
+  #ham-btn { display:flex; }
+}
+#ham-btn { display:none; background:none; border:none; color:var(--gold); font-size:1.4rem; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sidebar-logo">
+    <h1>Mehfil-e-Sahib</h1>
+    <p>Admin Panel</p>
+    <span class="sidebar-badge">🔐 Private</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)">
+      <span class="icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('queries',this)" id="queries-nav">
+      <span class="icon">📋</span> Booking Queries
+      <span class="nav-badge" id="new-badge">0</span>
+    </div>
+    <div class="nav-section">Media</div>
+    <div class="nav-item" onclick="showPage('gallery',this)">
+      <span class="icon">🖼️</span> Gallery Manager
+    </div>
+    <div class="nav-item" onclick="showPage('upload',this)">
+      <span class="icon">⬆️</span> Upload Images
+    </div>
+    <div class="nav-section">Tools</div>
+    <div class="nav-item" onclick="exportCSV()">
+      <span class="icon">📥</span> Export Queries CSV
+    </div>
+    <div class="nav-item" onclick="clearAll()">
+      <span class="icon">🗑️</span> Clear All Data
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="mehfil-e-sahib.html" target="_blank">↗ View Live Site</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button id="ham-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <span class="topbar-title" id="page-title">Dashboard</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-time" id="clock"></span>
+      <a href="mehfil-e-sahib.html" target="_blank" class="topbar-btn">↗ Live Site</a>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD PAGE ── -->
+  <div class="page active" id="page-dashboard">
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="icon">📋</div>
+        <div class="label">Total Queries</div>
+        <div class="value" id="stat-total">0</div>
+        <div class="sub">All time submissions</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">🆕</div>
+        <div class="label">New (Unread)</div>
+        <div class="value" id="stat-new" style="color:var(--green)">0</div>
+        <div class="sub">Awaiting response</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">🖼️</div>
+        <div class="label">Gallery Photos</div>
+        <div class="value" id="stat-gallery">0</div>
+        <div class="sub">Uploaded images</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon">💰</div>
+        <div class="label">Top Budget</div>
+        <div class="value" id="stat-budget" style="font-size:1.1rem;padding-top:6px;">—</div>
+        <div class="sub">Most requested range</div>
+      </div>
+    </div>
+
+    <!-- Recent queries table -->
+    <div class="sec-header">
+      <div class="sec-title">Recent Queries</div>
+      <div class="sec-actions">
+        <button class="act-btn" onclick="showPage('queries',document.querySelector('[onclick*=queries]'))">View All →</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Event Type</th><th>Date</th><th>Budget</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="recent-tbody">
+          <tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div><p>No queries yet. Submit a booking from the live site to see them here.</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── QUERIES PAGE ── -->
+  <div class="page" id="page-queries">
+    <div class="filter-bar">
+      <input class="search-box" id="search-input" placeholder="🔍  Search by name, city, email…" oninput="renderQueries()" />
+      <select class="filter-select" id="filter-status" onchange="renderQueries()">
+        <option value="">All Status</option>
+        <option value="New">New</option>
+        <option value="Read">Read</option>
+        <option value="Replied">Replied</option>
+        <option value="Closed">Closed</option>
+      </select>
+      <select class="filter-select" id="filter-type" onchange="renderQueries()">
+        <option value="">All Event Types</option>
+        <option>Wedding</option>
+        <option>Reception</option>
+        <option>Corporate Show</option>
+        <option>Private Mehfil</option>
+        <option>Sufi Night</option>
+        <option>College Festival</option>
+        <option>Destination Wedding</option>
+        <option>Spiritual Program</option>
+        <option>Other</option>
+      </select>
+      <button class="topbar-btn" onclick="exportCSV()">📥 Export CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Name</th><th>Phone</th><th>Email</th><th>Event Type</th>
+            <th>City</th><th>Event Date</th><th>Budget</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="queries-tbody">
+          <tr><td colspan="10"><div class="empty-state"><div class="icon">📭</div><p>No queries yet.</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── GALLERY MANAGER PAGE ── -->
+  <div class="page" id="page-gallery">
+    <div class="sec-header">
+      <div class="sec-title">Gallery Images</div>
+      <div class="sec-actions">
+        <button class="btn-gold" onclick="showPage('upload',document.querySelector('[onclick*=upload]'))">+ Upload New</button>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:0.78rem;margin-bottom:20px;">Images uploaded here are stored locally in your browser. Hover to delete or set as cover.</p>
+    <div class="gallery-manager" id="gallery-manager">
+      <div class="empty-state" style="grid-column:1/-1"><div class="icon">🖼️</div><p>No custom images uploaded yet.</p></div>
+    </div>
+  </div>
+
+  <!-- ── UPLOAD PAGE ── -->
+  <div class="page" id="page-upload">
+    <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFiles(event)">
+      <input type="file" id="file-input" multiple accept="image/*" onchange="handleFiles(this.files)" />
+      <div style="font-size:3rem;margin-bottom:12px;">⬆️</div>
+      <h3>Upload Performance Photos</h3>
+      <p>Click to browse or drag & drop images here<br/><span style="font-size:0.7rem;opacity:0.6;">JPG, PNG, WEBP accepted</span></p>
+    </div>
+    <div class="preview-row" id="preview-row"></div>
+    <div style="display:flex;gap:12px;margin-top:20px;" id="upload-actions" style="display:none">
+      <button class="btn-gold" id="save-btn" onclick="saveImages()" style="display:none">💾 Save to Gallery</button>
+      <button class="btn-outline" onclick="clearPreviews()">Clear</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Query Details</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal()">Close</button>
+      <button class="btn-gold" onclick="whatsappReply()">💬 WhatsApp Reply</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ── STATE ──
+let currentQuery = null;
+let pendingFiles = [];
+
+// ── CLOCK ──
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ── NAVIGATION ──
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  const titles = {dashboard:'Dashboard', queries:'Booking Queries', gallery:'Gallery Manager', upload:'Upload Images'};
+  document.getElementById('page-title').textContent = titles[id] || id;
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'queries') renderQueries();
+  if (id === 'gallery') renderGallery();
+}
+
+// ── DATA HELPERS ──
+function getQueries() { return JSON.parse(localStorage.getItem('mes_queries') || '[]'); }
+function saveQueries(q) { localStorage.setItem('mes_queries', JSON.stringify(q)); }
+function getImages() { return JSON.parse(localStorage.getItem('mes_images') || '[]'); }
+function saveImages2(imgs) { localStorage.setItem('mes_images', JSON.stringify(imgs)); }
+
+// ── TOAST ──
+function toast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderLeftColor = color || 'var(--gold)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  const queries = getQueries();
+  const newOnes = queries.filter(q => q.status === 'New');
+  document.getElementById('stat-total').textContent = queries.length;
+  document.getElementById('stat-new').textContent = newOnes.length;
+  document.getElementById('stat-gallery').textContent = getImages().length;
+  document.getElementById('new-badge').textContent = newOnes.length;
+
+  // Top budget
+  if (queries.length) {
+    const budgetCount = {};
+    queries.forEach(q => { if(q.budget) budgetCount[q.budget] = (budgetCount[q.budget]||0)+1; });
+    const top = Object.entries(budgetCount).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById('stat-budget').textContent = top ? top[0].replace('₹','₹').substring(0,12) : '—';
+  }
+
+  // Recent 5
+  const tbody = document.getElementById('recent-tbody');
+  if (!queries.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div><p>No queries yet. Submit a booking from the live site.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = queries.slice(0,5).map((q,i) => `
+    <tr>
+      <td><strong>${q.name}</strong></td>
+      <td class="muted">${q.eventType || '—'}</td>
+      <td class="muted">${q.date || '—'}</td>
+      <td class="muted">${q.budget || '—'}</td>
+      <td><span class="badge ${q.status.toLowerCase()}">${q.status}</span></td>
+      <td><button class="act-btn" onclick="openQuery(${q.id})">View</button></td>
+    </tr>
+  `).join('');
+}
+
+// ── QUERIES ──
+function renderQueries() {
+  const queries = getQueries();
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const statusF = document.getElementById('filter-status').value;
+  const typeF = document.getElementById('filter-type').value;
+
+  let filtered = queries.filter(q => {
+    const matchSearch = !search || [q.name,q.email,q.city,q.phone].some(v => v && v.toLowerCase().includes(search));
+    const matchStatus = !statusF || q.status === statusF;
+    const matchType = !typeF || q.eventType === typeF;
+    return matchSearch && matchStatus && matchType;
+  });
+
+  const tbody = document.getElementById('queries-tbody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="icon">📭</div><p>No queries found.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map((q, i) => `
+    <tr>
+      <td class="muted">${i+1}</td>
+      <td><strong>${q.name}</strong></td>
+      <td class="muted">${q.phone}</td>
+      <td class="muted" style="font-size:0.72rem">${q.email}</td>
+      <td class="muted">${q.eventType || '—'}</td>
+      <td class="muted">${q.city || '—'}</td>
+      <td class="muted">${q.date || '—'}</td>
+      <td class="muted" style="font-size:0.7rem">${q.budget || '—'}</td>
+      <td>
+        <select class="filter-select" style="padding:3px 8px;font-size:0.68rem;" onchange="updateStatus(${q.id},this.value)">
+          ${['New','Read','Replied','Closed'].map(s => `<option value="${s}" ${q.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td style="white-space:nowrap">
+        <button class="act-btn" onclick="openQuery(${q.id})">👁 View</button>
+        <button class="act-btn" onclick="deleteQuery(${q.id})">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+
+  // update badge
+  const newCount = queries.filter(q=>q.status==='New').length;
+  document.getElementById('new-badge').textContent = newCount;
+}
+
+function updateStatus(id, status) {
+  const queries = getQueries();
+  const q = queries.find(q => q.id === id);
+  if (q) { q.status = status; saveQueries(queries); renderQueries(); toast(`Marked as ${status}`); }
+}
+
+function deleteQuery(id) {
+  if (!confirm('Delete this query?')) return;
+  const queries = getQueries().filter(q => q.id !== id);
+  saveQueries(queries);
+  renderQueries();
+  renderDashboard();
+  toast('Query deleted', 'var(--red)');
+}
+
+function openQuery(id) {
+  const q = getQueries().find(q => q.id === id);
+  if (!q) return;
+  currentQuery = q;
+  // Mark as read
+  if (q.status === 'New') updateStatus(id, 'Read');
+
+  document.getElementById('modal-title').textContent = `Query — ${q.name}`;
+  const d = new Date(q.submittedAt);
+  document.getElementById('modal-body').innerHTML = `
+    <div class="detail-row"><div class="detail-label">Submitted</div><div class="detail-value">${d.toLocaleString('en-IN')}</div></div>
+    <div class="detail-row"><div class="detail-label">Full Name</div><div class="detail-value">${q.name}</div></div>
+    <div class="detail-row"><div class="detail-label">Phone</div><div class="detail-value"><a href="tel:${q.phone}" style="color:var(--gold)">${q.phone}</a></div></div>
+    <div class="detail-row"><div class="detail-label">Email</div><div class="detail-value"><a href="mailto:${q.email}" style="color:var(--gold)">${q.email}</a></div></div>
+    <div class="detail-row"><div class="detail-label">Event Type</div><div class="detail-value">${q.eventType || '—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Event Date</div><div class="detail-value">${q.date || '—'}</div></div>
+    <div class="detail-row"><div class="detail-label">City</div><div class="detail-value">${q.city || '—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Expected Guests</div><div class="detail-value">${q.guests || '—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Budget Range</div><div class="detail-value" style="color:var(--gold)">${q.budget || '—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Message</div><div class="detail-value">${q.message || '—'}</div></div>
+    <div style="margin-top:8px">
+      <div style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Quick Reply Note</div>
+      <textarea class="reply-box" id="reply-note" placeholder="Add internal note or draft reply…">${q.note||''}</textarea>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-gold" onclick="saveNote(${q.id})">💾 Save Note</button>
+      <a href="tel:${q.phone}" style="text-decoration:none"><button class="act-btn">📞 Call</button></a>
+      <a href="mailto:${q.email}" style="text-decoration:none"><button class="act-btn">✉️ Email</button></a>
+    </div>
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function saveNote(id) {
+  const queries = getQueries();
+  const q = queries.find(q => q.id === id);
+  if (q) {
+    q.note = document.getElementById('reply-note').value;
+    saveQueries(queries);
+    toast('Note saved ✓');
+  }
+}
+
+function whatsappReply() {
+  if (!currentQuery) return;
+  const msg = encodeURIComponent(`Hello ${currentQuery.name}! Thank you for your inquiry about booking Mehfil-e-Sahib for your ${currentQuery.eventType || 'event'}. We'd love to discuss this further. Could you please share more details about your requirements?`);
+  const phone = currentQuery.phone.replace(/[^0-9]/g,'');
+  window.open(`https://wa.me/${phone.startsWith('91')?phone:'91'+phone}?text=${msg}`, '_blank');
+}
+
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+// ── CSV EXPORT ──
+function exportCSV() {
+  const queries = getQueries();
+  if (!queries.length) { toast('No queries to export', 'var(--red)'); return; }
+  const headers = ['ID','Submitted At','Name','Phone','Email','Event Type','Event Date','City','Guests','Budget','Message','Status'];
+  const rows = queries.map(q => [
+    q.id, q.submittedAt, q.name, q.phone, q.email,
+    q.eventType, q.date, q.city, q.guests, q.budget,
+    (q.message||'').replace(/,/g,';'), q.status
+  ].map(v => `"${v||''}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `mehfil-queries-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV downloaded ✓');
+}
+
+// ── CLEAR ALL ──
+function clearAll() {
+  if (!confirm('Clear ALL stored queries and images? This cannot be undone.')) return;
+  localStorage.removeItem('mes_queries');
+  localStorage.removeItem('mes_images');
+  renderDashboard();
+  toast('All data cleared', 'var(--red)');
+}
+
+// ── GALLERY ──
+function renderGallery() {
+  const imgs = getImages();
+  const container = document.getElementById('gallery-manager');
+  if (!imgs.length) {
+    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">🖼️</div><p>No images uploaded yet. Go to Upload Images to add photos.</p></div>';
+    return;
+  }
+  container.innerHTML = imgs.map((img, i) => `
+    <div class="gal-thumb">
+      <img src="${img.data}" alt="Gallery ${i+1}" />
+      <div class="gal-num">#${i+1}</div>
+      <div class="gal-overlay">
+        <button onclick="deleteImage(${i})">🗑 Remove</button>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('stat-gallery').textContent = imgs.length;
+}
+
+function deleteImage(index) {
+  if (!confirm('Remove this image from gallery?')) return;
+  const imgs = getImages();
+  imgs.splice(index, 1);
+  saveImages2(imgs);
+  renderGallery();
+  toast('Image removed', 'var(--red)');
+}
+
+// ── UPLOAD ──
+function handleFiles(files) {
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) continue;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      pendingFiles.push({ name: file.name, data: e.target.result });
+      addPreview(e.target.result, pendingFiles.length - 1);
+    };
+    reader.readAsDataURL(file);
+  }
+  document.getElementById('save-btn').style.display = 'inline-block';
+}
+
+function addPreview(src, i) {
+  const row = document.getElementById('preview-row');
+  const div = document.createElement('div');
+  div.className = 'preview-item';
+  div.id = 'prev-' + i;
+  div.innerHTML = `<img src="${src}" /><button class="rm" onclick="removePending(${i})">✕</button>`;
+  row.appendChild(div);
+  document.getElementById('upload-actions').style.display = 'flex';
+}
+
+function removePending(i) {
+  pendingFiles[i] = null;
+  const el = document.getElementById('prev-' + i);
+  if (el) el.remove();
+}
+
+function clearPreviews() {
+  pendingFiles = [];
+  document.getElementById('preview-row').innerHTML = '';
+  document.getElementById('save-btn').style.display = 'none';
+  document.getElementById('file-input').value = '';
+}
+
+function saveImages() {
+  const toSave = pendingFiles.filter(Boolean);
+  if (!toSave.length) return;
+  const imgs = getImages();
+  toSave.forEach(f => imgs.push({ name: f.name, data: f.data, addedAt: new Date().toISOString() }));
+  saveImages2(imgs);
+  clearPreviews();
+  toast(`${toSave.length} image(s) saved to gallery ✓`);
+  document.getElementById('stat-gallery').textContent = imgs.length;
+}
+
+// ── DRAG & DROP ──
+function dragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag'); }
+function dragLeave(e) { document.getElementById('drop-zone').classList.remove('drag'); }
+function dropFiles(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag');
+  handleFiles(e.dataTransfer.files);
+}
+
+// ── DEMO DATA BUTTON ──
+function addDemoQuery() {
+  const demos = [
+    { name:'Priya Sharma', phone:'+91 98765 43210', email:'priya@gmail.com', date:'2025-12-15', city:'Delhi', eventType:'Wedding', guests:'150–500', budget:'₹1,00,000 – ₹2,00,000', message:'We want a beautiful Sufi performance for our wedding sangeet and reception. Please share packages.' },
+    { name:'Rahul Mehta', phone:'+91 87654 32109', email:'rahul.m@corp.com', date:'2025-11-20', city:'Mumbai', eventType:'Corporate Show', guests:'50–150', budget:'₹50,000 – ₹1,00,000', message:'Annual company event, looking for a 2-hour Qawwali performance.' },
+    { name:'Zara Khan', phone:'+91 76543 21098', email:'zara.k@yahoo.com', date:'2025-10-10', city:'Chandigarh', eventType:'Private Mehfil', guests:'Under 50', budget:'₹25,000 – ₹50,000', message:'Intimate gathering of 30 people, Sufi night. Looking for availability.' },
+  ];
+  const demo = demos[Math.floor(Math.random()*demos.length)];
+  demo.id = Date.now();
+  demo.submittedAt = new Date().toISOString();
+  demo.status = 'New';
+  const existing = getQueries();
+  existing.unshift(demo);
+  saveQueries(existing);
+  renderDashboard();
+  toast('Demo query added ✓');
+}
+
+// ── INIT ──
+renderDashboard();
+document.getElementById('new-badge').textContent = getQueries().filter(q=>q.status==='New').length;
+
+// Add demo btn to dashboard
+document.getElementById('page-dashboard').insertAdjacentHTML('afterbegin', `
+  <div style="display:flex;justify-content:flex-end;margin-bottom:20px;gap:10px;">
+    <button class="act-btn" onclick="addDemoQuery()">+ Add Demo Query</button>
+    <span style="font-size:0.72rem;color:var(--muted);align-self:center;">← Test how queries look from the live site</span>
+  </div>
+`);
+</script>
+</body>
+</html>
